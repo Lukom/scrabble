@@ -1,0 +1,5 @@
+%table(border="1" cellspasing="0" cellpadding="5")
+  - @words.each do |word|
+    %tr
+      %td!= word.word
+      %td!= word.description.gsub("\n", '<br>')

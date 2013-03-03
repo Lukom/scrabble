@@ -1,0 +1,5 @@
+%table(border="1" cellspasing="0" cellpadding="5")
+  - @words.each do |word|
+    %tr
+      %td!= word.accent_word.gsub('[', '').gsub(']', '&#769;')
+      %td!= word.description.gsub("\n", '<br>')
