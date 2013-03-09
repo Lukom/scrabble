@@ -1,0 +1,9 @@
+%table(border="0" cellspasing="0" cellpadding="0")
+  %tr
+    - @words_riddles.each do |riddles_set|
+      %td
+        %table(border="1" cellspasing="0" cellpadding="5")
+          - riddles_set.each do |riddle|
+            %tr
+              %td!= riddle
+              %td(width="120") &nbsp;
