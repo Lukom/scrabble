@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 class DicProcessor
   TERM_REGEX = %r(<k>(.*)</k>)
   def process
@@ -26,5 +27,11 @@ class DicProcessor
     accent_word = term.gsub('<nu />', '').gsub('[&apos;]', '[').gsub('[/&apos;]', ']').gsub('&apos;', '\'')
     word = accent_word.tr('[]', '')
     Word.create!(word: word, accent_word: accent_word, description: descr)
+  end
+
+  def mark_has_g
+    all_words = Word.where(%q(word LIKE '%ґ%')).all
+    all_words.select! { |w| w.word.include?('ґ') || w.word.include?('Ґ') }
+    Word.where(id: all_words.map(&:id)).update_all(has_g: true)
   end
 end

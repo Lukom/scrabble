@@ -6,8 +6,8 @@ class HomeController < ApplicationController
   end
 
   def words_with_g
-    all_words = Word.where(%q(word LIKE '%ґ%')).all
-    @words_by_size = all_words.group_by { |w| w.word.size }.sort.map { |len, words| [len, words.select { |w| w.word.include?('ґ') }]  }
+    all_words = Word.where(has_g: true).all
+    @words_by_size = all_words.group_by { |w| w.word.size }.sort
   end
 
   def three_letter_words
@@ -19,9 +19,8 @@ class HomeController < ApplicationController
   end
 
   def riddles
-    @words = Word.where(%q(LENGTH(word) = 12 AND word LIKE '%ґ%')).all
+    @words = Word.where('LENGTH(word) = 12').where(has_g: true).all
     @words.map!(&:word)
-    @words.select! { |w| w.include?('ґ') }
     @words_riddles = Array.new(3).map { words_riddles(@words) }
   end
 

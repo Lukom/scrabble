@@ -11,12 +11,13 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130302204051) do
+ActiveRecord::Schema.define(:version => 20130309175614) do
 
   create_table "words", :force => true do |t|
-    t.string "word"
-    t.string "accent_word"
-    t.text   "description"
+    t.string  "word"
+    t.string  "accent_word"
+    t.text    "description"
+    t.boolean "has_g"
   end
 
 end
