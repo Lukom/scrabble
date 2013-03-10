@@ -19,7 +19,8 @@ class HomeController < ApplicationController
   end
 
   def riddles
-    @words = Word.where('LENGTH(word) = 12').where(has_g: true).all
+    len = 7
+    @words = Word.where('LENGTH(word) = ?', len * 2).where(has_g: true).all
     @words.map!(&:word)
     @words_riddles = Array.new(3).map { words_riddles(@words) }
   end
