@@ -1,0 +1,10 @@
+= form_tag words_by_letters_home_path, method: :get do
+  %input(type="text" name="letters" value="#{params[:letters]}")
+  + 1 з букв
+  %input(type="text" name="and_one_from" value="#{params[:and_one_from]}")
+  %button(type="submit") Знайти
+
+%hr
+
+- if @words
+  %p!= @words.map(&:word).join('<br>')

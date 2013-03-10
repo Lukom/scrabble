@@ -8,10 +8,11 @@ Scrabble::Application.routes.draw do
       get :words_with_g
       get :riddles
       get :g_stats
+      get :words_by_letters
     end
   end
 
-  root :to => 'home#riddles'
+  root :to => 'home#words_by_letters'
 
   # See how all your routes lay out with "rake routes"
 

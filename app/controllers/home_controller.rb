@@ -2,7 +2,7 @@
 class HomeController < ApplicationController
   BANNED_TWO_LETTER_WORDS = %w(Ям аа ма ра юл іо)
   def two_letter_words
-    @words = Word.where('LENGTH(word) = 4').all.select! { |w| !BANNED_TWO_LETTER_WORDS.include?(w.word) }
+    @words = Word.where('CHAR_LENGTH(word) = 2').all.select! { |w| !BANNED_TWO_LETTER_WORDS.include?(w.word) }
   end
 
   def words_with_g
@@ -11,16 +11,15 @@ class HomeController < ApplicationController
   end
 
   def three_letter_words
-    @words = Word.where('LENGTH(word) = 6').all
+    @words = Word.where('CHAR_LENGTH(word) = 3').all
   end
 
   def four_letter_words
-    @words = Word.where('LENGTH(word) = 8').all
+    @words = Word.where('CHAR_LENGTH(word) = 4').all
   end
 
   def riddles
-    len = 7
-    @words = Word.where('LENGTH(word) = ?', len * 2).where(has_g: true).all
+    @words = Word.where('CHAR_LENGTH(word) = ?', 7).where(has_g: true).all
     @words.map!(&:word)
     @words_riddles = Array.new(3).map { words_riddles(@words) }
   end
@@ -85,6 +84,12 @@ class HomeController < ApplicationController
       end
       stats
     end.sort_by { |_, data| data[:num] }.reverse
+  end
+
+  def words_by_letters
+    if params[:letters]
+      @words = Word.by_letters_leq(params[:letters].chars, params[:and_one_from].to_s.chars).sort_by! { |w| w.word.size }.reverse!
+    end
   end
 
   private
