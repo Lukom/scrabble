@@ -92,6 +92,15 @@ class HomeController < ApplicationController
     end
   end
 
+  def top_score_words
+    @top_score_words = Word.all_words(2..15).each_with_object([]) do |w, arr|
+      if (score = ScrabbleUtils.word_score(w.word)) && score >= (arr.first.try(:[], 1) || 0)
+        arr.unshift [w.word, score]
+        arr.pop if arr.size > 20
+      end
+    end
+  end
+
   private
 
   def words_riddles(words)

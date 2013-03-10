@@ -9,6 +9,7 @@ Scrabble::Application.routes.draw do
       get :riddles
       get :g_stats
       get :words_by_letters
+      get :top_score_words
     end
   end
 
