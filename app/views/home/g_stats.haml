@@ -1,0 +1,48 @@
+- if @g_words_count
+  %h3 Всього слів з Ґ - #{@g_words_count}
+  %table(border="1")
+    %tr
+      %td
+        довжиною 2..7 - #{@g_words_2_7_count}<br>
+        довжиною 2..15 - #{@g_words_2_15_count}
+
+- if @g_pos_stats
+  %h3 Позиція Ґ в слові:
+  %table(border="1")
+    %tr
+      %td
+        != @g_pos_stats.map { |pos, data| "#{pos} - #{data[:num]} &nbsp; наприклад: #{data[:egs].sample}" }.join('<br>')
+
+- if @g_size_stats
+  %h3 Довжина слів з Ґ:
+  %table(border="1")
+    %tr
+      %td
+        != @g_size_stats.map { |size, data| "#{size} - #{data[:num]} &nbsp; наприклад: #{data[:eg]}" }.join('<br>')
+
+- if @before_g_stats
+  %h3 Буква перед Ґ:
+  %table(border="1")
+    %tr
+      %td
+        - zeros = @before_g_stats.select { |letter, data| data[:num] == 0 }
+        != (@before_g_stats - zeros).map { |letter, data| "#{letter} - #{data[:num]} &nbsp; наприклад: #{data[:egs].sample}" }.join('<br>')
+        <br>#{zeros.map { |letter, _| letter }.join(', ')} - 0
+
+- if @after_g_stats
+  %h3 Буква після Ґ:
+  %table(border="1")
+    %tr
+      %td
+        - zeros = @after_g_stats.select { |letter, data| data[:num] == 0 }
+        != (@after_g_stats - zeros).map { |letter, data| "#{letter} - #{data[:num]} &nbsp; наприклад: #{data[:egs].sample}" }.join('<br>')
+        <br>#{zeros.map { |letter, _| letter }.join(', ')} - 0
+
+- if @letters_in_g_word_stats
+  %h3 Буква міститься в слові з Ґ:
+  %table(border="1")
+    %tr
+      %td
+        - zeros = @letters_in_g_word_stats.select { |letter, data| data[:num] == 0 }
+        != (@letters_in_g_word_stats - zeros).map { |letter, data| "#{letter} - #{data[:num]} &nbsp; наприклад: #{data[:egs].sample}" }.join('<br>')
+        <br>#{zeros.map { |letter, _| letter }.join(', ')} - 0

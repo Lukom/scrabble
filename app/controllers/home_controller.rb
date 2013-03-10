@@ -24,6 +24,68 @@ class HomeController < ApplicationController
     @words_riddles = Array.new(3).map { words_riddles(@words) }
   end
 
+  def g_stats
+    g_words = Word.where(has_g: true).all
+
+    @g_words_count = g_words.size
+    @g_words_2_7_count = g_words.count { |w| (2..7).cover?(w.word.size) }
+    @g_words_2_15_count = g_words.count { |w| (2..15).cover?(w.word.size) }
+
+    @g_pos_stats = g_words.each_with_object({}) do |w, h|
+      w.word.scan(/[ґҐ]/) do
+        pos = Regexp.last_match.begin(0) + 1
+        h[pos] ||= {num: 0, egs: []}
+        h[pos][:num] += 1
+        h[pos][:egs] << w.word
+      end
+    end.sort
+
+    @g_size_stats = g_words.group_by { |w| w.word.size }.map { |size, words| [size, {num: words.size,
+                                                                                     eg: words.sample.word}] }.sort
+
+    @after_g_stats = begin
+      stats = ScrabbleUtils.letter_amounts.dup.each_with_object({}) { |(letter, _), h| h[letter] = {num: 0, egs: []} }
+      g_words.each do |w|
+        w.word.scan(/[ґҐ](.)/) do
+          char = Regexp.last_match[1]
+          if stats[char]
+            stats[char][:num] += 1
+            stats[char][:egs] << w.word
+          end
+        end
+      end
+      stats
+    end.sort_by { |_, data| data[:num] }.reverse
+
+    @before_g_stats = begin
+      stats = ScrabbleUtils.letter_amounts.dup.each_with_object({}) { |(letter, _), h| h[letter] = {num: 0, egs: []} }
+      g_words.each do |w|
+        w.word.scan(/(.)[ґҐ]/) do
+          char = Regexp.last_match[1]
+          if stats[char]
+            stats[char][:num] += 1
+            stats[char][:egs] << w.word
+          end
+        end
+      end
+      stats
+    end.sort_by { |_, data| data[:num] }.reverse
+
+    @letters_in_g_word_stats = begin
+      letters = ScrabbleUtils.letter_amounts.keys - %w(ґ)
+      stats = letters.each_with_object({}) { |letter, h| h[letter] = {num: 0, egs: []} }
+      g_words.each do |w|
+        letters.each do |letter|
+          if w.word.include?(letter)
+            stats[letter][:num] += 1
+            stats[letter][:egs] << w.word
+          end
+        end
+      end
+      stats
+    end.sort_by { |_, data| data[:num] }.reverse
+  end
+
   private
 
   def words_riddles(words)
