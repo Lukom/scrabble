@@ -1,3 +1,9 @@
-%ol
-  - @top_score_words.each do |word, score|
-    %li #{word} - #{score}
+- if @top_score_words
+  %ol
+    - @top_score_words.each do |word, score|
+      %li #{word} - #{score}
+
+- if @top_score_bottom_words
+  %ol
+    - @top_score_bottom_words.each do |word, score|
+      %li #{word} - #{score}

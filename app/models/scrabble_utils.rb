@@ -102,5 +102,24 @@ class ScrabbleUtils
       end
       res ? sum : nil
     end
+
+    def bottom_word_score(word)
+      empty_cells = 2
+      sum = 0
+      res = word.chars.each_with_object({}).with_index do |(char, h), i|
+        h[char] = (h[char] || 0) + 1
+        if !letter_amounts[char]
+          break nil
+        elsif h[char] <= letter_amounts[char]
+          mult = i == 3 || i == 11 ? 2 : 1
+          sum += letter_scores[char] * mult
+        elsif empty_cells > 0
+          empty_cells -= 1
+        else
+          break nil
+        end
+      end
+      res ? sum : nil
+    end
   end
 end

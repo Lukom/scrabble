@@ -93,9 +93,17 @@ class HomeController < ApplicationController
   end
 
   def top_score_words
-    @top_score_words = Word.all_words(2..15).each_with_object([]) do |w, arr|
-      if (score = ScrabbleUtils.word_score(w.word)) && score >= (arr.first.try(:[], 1) || 0)
-        arr.unshift [w.word, score]
+    #@top_score_words = Word.all_words(2..15).each_with_object([]) do |w, arr|
+    #  if (score = ScrabbleUtils.word_score(w.word)) && score >= (arr.last.try(:[], 1) || 0)
+    #    i = arr.rindex { |el| el[1] >= score } || -1
+    #    arr.insert(i + 1, [w.word, score])
+    #    arr.pop if arr.size > 20
+    #  end
+    #end
+    @top_score_bottom_words = Word.all_words(10..15).each_with_object([]) do |w, arr|
+      if (score = ScrabbleUtils.bottom_word_score(w.word)) && score >= (arr.last.try(:[], 1) || 0)
+        i = arr.rindex { |el| el[1] >= score } || -1
+        arr.insert(i + 1, [w.word, score])
         arr.pop if arr.size > 20
       end
     end
