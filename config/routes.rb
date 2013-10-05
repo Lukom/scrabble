@@ -4,7 +4,9 @@ Scrabble::Application.routes.draw do
     collection do
       get :two_letter_words
       get :three_letter_words
+      get :three_letter_words_only
       get :four_letter_words
+      get :sorted_by_score
       get :words_with_g
       get :riddles
       get :g_stats

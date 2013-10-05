@@ -1,0 +1,16 @@
+= form_tag nil, method: :get do
+  К-сть букв:
+  %input(type="number" name="word_length" value="#{params[:word_length] || 3}")
+  Ліміт букв:
+  %input(type="number" name="word_length_limit" value="#{params[:bottom_limit] || 10}")
+  %button(type="submit") Знайти
+
+%hr
+
+- if @words
+  %table(border="1" cellspasing="0" cellpadding="5")
+    - @words.each do |word, score|
+      %tr
+        %td!= word.word
+        %td!= score
+        %td!= word.description.gsub("\n", '<br>')

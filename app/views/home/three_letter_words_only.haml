@@ -1,0 +1,13 @@
+%table(border="1" cellspasing="0" cellpadding="5")
+  - @words.each do |letter, letter_words|
+    %tr
+      %th(colspan="10")= letter
+    - letter_words.each_slice(10) do |words|
+      %tr
+        - words.each do |word, descr_part, description|
+          %td
+            %b!= word
+            %details
+              %summary
+                %small!= descr_part
+              != description.gsub("\n", '<br>')

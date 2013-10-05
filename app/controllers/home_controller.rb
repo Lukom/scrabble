@@ -2,7 +2,8 @@
 class HomeController < ApplicationController
   BANNED_TWO_LETTER_WORDS = %w(Ям аа ма ра юл іо)
   def two_letter_words
-    @words = Word.where('CHAR_LENGTH(word) = 2').all.select! { |w| !BANNED_TWO_LETTER_WORDS.include?(w.word) }
+    #@words = Word.where('CHAR_LENGTH(word) = 2').all.select! { |w| !BANNED_TWO_LETTER_WORDS.include?(w.word) }
+    @words = Word.where(has_g: true).all.select { |w| w.word.count('ґ') == 3 }
   end
 
   def words_with_g
@@ -11,7 +12,16 @@ class HomeController < ApplicationController
   end
 
   def three_letter_words
+    #@words = Word.where('CHAR_LENGTH(word) = 3').all
+    @words = Word.where(%(description LIKE '%міф.%')).all
+  end
+
+  def three_letter_words_only
     @words = Word.where('CHAR_LENGTH(word) = 3').all
+    @words.map! { |w|
+      [w.accent_word.gsub('[', '').gsub(']', '&#769;'), w.description.scan(%r{<c>.*?</c>}).join(', '), w.description]
+    }
+    @words = @words.chunk { |w, dp, d| w[0] }
   end
 
   def four_letter_words
@@ -19,7 +29,7 @@ class HomeController < ApplicationController
   end
 
   def riddles
-    @words = Word.where('CHAR_LENGTH(word) = ?', 7).where(has_g: true).all
+    @words = Word.where('CHAR_LENGTH(word) = ?', 3).where(has_g: true).all
     @words.map!(&:word)
     @words_riddles = Array.new(3).map { words_riddles(@words) }
   end
@@ -92,6 +102,14 @@ class HomeController < ApplicationController
     end
   end
 
+  def sorted_by_score
+    if params[:word_length]
+      @words = Word.all_words(params[:word_length].to_i)
+      @words.select! { |w| w.word.length >= params[:bottom_limit] } if params[:bottom_limit]
+      @words.map! { |w| [w, ScrabbleUtils.word_score(w.word) || 0] }.sort_by! { |_, score| -score }
+    end
+  end
+
   def top_score_words
     #@top_score_words = Word.all_words(2..15).each_with_object([]) do |w, arr|
     #  if (score = ScrabbleUtils.word_score(w.word)) && score >= (arr.last.try(:[], 1) || 0)
@@ -107,6 +125,10 @@ class HomeController < ApplicationController
         arr.pop if arr.size > 20
       end
     end
+  end
+
+  def sua_word_links
+    Sua.new.crawle
   end
 
   private

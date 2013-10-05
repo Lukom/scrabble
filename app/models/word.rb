@@ -1,5 +1,4 @@
 class Word < ActiveRecord::Base
-  attr_accessible :word, :accent_word, :description
 
   class << self
     # leq = less or equal
@@ -20,13 +19,15 @@ class Word < ActiveRecord::Base
       end
     end
 
-    def all_words(size_range = :all)
+    def all_words(range = :all)
       @all_words ||= {}
-      @all_words[size_range] = begin
-        if size_range == :all
+      @all_words[range] = begin
+        if range == :all
           Word.all
+        elsif range.is_a?(Fixnum)
+          Word.where('CHAR_LENGTH(word) = ?', range).all
         else
-          Word.where('CHAR_LENGTH(word) BETWEEN ? AND ?', size_range.begin, size_range.end).all
+          Word.where('CHAR_LENGTH(word) BETWEEN ? AND ?', range.begin, range.end).all
         end
       end
     end
