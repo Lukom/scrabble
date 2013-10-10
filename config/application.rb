@@ -8,6 +8,7 @@ Bundler.require(:default, Rails.env)
 
 #require 'nokogiri'
 require 'open-uri'
+#require 'timeout'
 
 module Scrabble
   class Application < Rails::Application

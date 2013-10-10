@@ -51,6 +51,7 @@ class Sua
   def crawle_all_words
     words_batch_size = 500
     while true do
+      Sua.puts_complete_perc
       sua_words = SuaWord.select(:id, :word).where('crawled IS NULL').limit(words_batch_size)
       return 'All words are crawled' if sua_words.empty?
       sua_words.each { |sua_word| try_crawle_word(sua_word) }
@@ -58,22 +59,23 @@ class Sua
   end
 
   def try_crawle_word(sua_word)
-    @crawle_wait_seconds ||= 1
+    @crawle_wait_seconds ||= 2
     begin
       crawle_word(sua_word)
-    rescue OpenURI::HTTPError => e
-      @crawle_wait_seconds *= 2
-      puts("OpenURI::HTTPError: #{e.message}. Wait #{@crawle_wait_seconds} seconds")
+    rescue OpenURI::HTTPError, Timeout::Error, ParseError => e
+      @crawle_wait_seconds *= 2 if @crawle_wait_seconds < 2048
+      puts("#{e.class.name}: #{e.message}. Wait #{@crawle_wait_seconds} seconds")
       sleep(@crawle_wait_seconds.seconds)
-      crawle_word(sua_word)
+      retry
     end
-    @crawle_wait_seconds = 1
+    @crawle_wait_seconds = 2
   end
 
   def crawle_word(sua_word)
     word = sua_word.word
-    print("crawle word #{word}")
+    print("#{Time.now.strftime('%F %T')} crawle word #{word} - ")
     doc = Nokogiri::HTML(open(INDEX_HREF + '?swrd=' + URI::escape(word.encode('windows-1251'))))
+    print('O')
     word_header = get_nodes_ensure_count(doc, '.grayheader_left', 1).first.content.strip.presence
     if word_header != word
       sua_word.linked_word = word_header
@@ -84,18 +86,30 @@ class Sua
     end
     sua_word.crawled = true
     sua_word.save!
-    print(" - OK\n")
+    print("K\n")
     wait_server
   end
 
   def get_nodes_ensure_count(doc, selector, count)
     nodeset = doc.css(selector)
-    throw_parse_error(doc, selector) if nodeset.size != count
+    if nodeset.size != count
+      if doc.title == 'ASUS Wireless Router RT-N53 - Error message'
+        raise ParseError.new('My Router Error')
+      elsif doc.css('b').any? { |node| node.inner_html == 'DB query error.' }
+        raise ParseError.new('DB Query Error')
+      else
+        throw_parse_error(doc, selector)
+      end
+    end
     nodeset
   end
 
   def throw_parse_error(doc, error_description = nil)
     puts doc.inner_html
     raise "Error! #{error_description}"
+  end
+
+  def self.puts_complete_perc
+    puts "Completed: #{(SuaWord.where(crawled: true).count/SuaWord.count.to_f*1000).floor/10.0}%"
   end
 end
