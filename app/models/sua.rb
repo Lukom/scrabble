@@ -62,7 +62,7 @@ class Sua
     @crawle_wait_seconds ||= 2
     begin
       crawle_word(sua_word)
-    rescue OpenURI::HTTPError, Timeout::Error, ParseError => e
+    rescue OpenURI::HTTPError, Timeout::Error, ParseError, EOFError => e
       @crawle_wait_seconds *= 2 if @crawle_wait_seconds < 2048
       puts("#{e.class.name}: #{e.message}. Wait #{@crawle_wait_seconds} seconds")
       sleep(@crawle_wait_seconds.seconds)
@@ -74,7 +74,11 @@ class Sua
   def crawle_word(sua_word)
     word = sua_word.word
     print("#{Time.now.strftime('%F %T')} crawle word #{word} - ")
-    doc = Nokogiri::HTML(open(INDEX_HREF + '?swrd=' + URI::escape(word.encode('windows-1251'))))
+    word_url = INDEX_HREF + '?swrd=' + URI::escape(word.encode('windows-1251'))
+    doc = Nokogiri::HTML(open(word_url,
+                              proxy: URI.parse('http://82.117.234.87:8888/'),
+                              'User-Agent' => 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36',
+                              'Referer' => word_url))
     print('O')
     word_header = get_nodes_ensure_count(doc, '.grayheader_left', 1).first.content.strip.presence
     if word_header != word

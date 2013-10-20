@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131004215759) do
+ActiveRecord::Schema.define(version: 20131012122744) do
 
   create_table "sua_words", force: true do |t|
     t.string   "word"
@@ -22,6 +22,17 @@ ActiveRecord::Schema.define(version: 20131004215759) do
     t.string   "linked_word"
     t.integer  "linked_word_id"
     t.boolean  "empty_word"
+  end
+
+  create_table "ulif_words", force: true do |t|
+    t.string   "word"
+    t.boolean  "crawled"
+    t.text     "content"
+    t.integer  "no"
+    t.boolean  "has_syn"
+    t.boolean  "has_phras"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "words", force: true do |t|
