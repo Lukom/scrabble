@@ -5,6 +5,17 @@ class Ulif
   LAST_WORD = 'Я́я'
   LINKS_COUNT = 25
 
+  def try_crawle_all
+    @crawle_wait_seconds = 60
+    begin
+      crawle_all
+    rescue Selenium::WebDriver::Error::StaleElementReferenceError => e
+      puts "\n#{e.class.name}: #{e.message}. Wait #{@crawle_wait_seconds} seconds"
+      sleep(@crawle_wait_seconds.seconds)
+      retry
+    end
+  end
+
   def crawle_all
     last_crawled_word = UlifWord.where('crawled IS NOT NULL').order('id DESC').first
     if !last_crawled_word
@@ -14,9 +25,8 @@ class Ulif
       @initial_word = last_crawled_word.word
       @initial_ignore =  UlifWord.where(word: @initial_word).count
     end
-    @driver = Selenium::WebDriver.for :chrome
+    @driver = Selenium::WebDriver.for :firefox
     @wait = Selenium::WebDriver::Wait.new(timeout: 10)
-    #@driver.manage.timeouts.implicit_wait = 10
     begin
       @driver.navigate.to DICT_HREF
       wait_server
